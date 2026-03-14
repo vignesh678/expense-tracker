@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track your monthly expenses across categories like groceries, transport, stocks, and mutual funds. Export reports as CSV.">
+  <title>Expense Tracker</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Mobile menu toggle -->
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">☰</button>
+
+  <div class="app-container">
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="logo.png" alt="Expense Tracker Logo" class="app-logo">
+        <div>
+          <div class="logo">Expense</div>
+          <div class="logo-subtitle">Tracker</div>
+        </div>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <button class="nav-link active" data-view="dashboard" id="nav-dashboard">
+            <span class="nav-icon">⬡</span> Dashboard
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-view="add" id="nav-add">
+            <span class="nav-icon">＋</span> Add Expense
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-view="list" id="nav-list">
+            <span class="nav-icon">≡</span> Expenses
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-view="report" id="nav-report">
+            <span class="nav-icon">◈</span> Monthly Report
+          </button>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- ── Main Content ── -->
+    <main class="main-content">
+
+      <!-- ======== DASHBOARD VIEW ======== -->
+      <section class="view active" id="view-dashboard">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Overview of your monthly spending</p>
+          </div>
+          <div class="month-picker">
+            <button id="dash-prev-month" aria-label="Previous month">◀</button>
+            <span class="current-month" id="dash-month-label"></span>
+            <button id="dash-next-month" aria-label="Next month">▶</button>
+          </div>
+        </div>
+
+        <div class="summary-grid" id="summary-cards"></div>
+
+        <div class="charts-grid">
+          <div class="chart-container">
+            <h2 class="chart-title">Category Breakdown</h2>
+            <div class="chart-canvas-wrapper">
+              <canvas id="pieChart" width="280" height="280"></canvas>
+            </div>
+            <div class="chart-legend" id="pieLegend"></div>
+          </div>
+          <div class="chart-container">
+            <h2 class="chart-title">Daily Spending</h2>
+            <div class="chart-canvas-wrapper">
+              <canvas id="barChart" width="500" height="280"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent transactions -->
+        <div class="card">
+          <h2 class="chart-title" style="margin-bottom: var(--space-md);">Recent Transactions</h2>
+          <div id="recent-transactions"></div>
+        </div>
+      </section>
+
+      <!-- ======== ADD EXPENSE VIEW ======== -->
+      <section class="view" id="view-add">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Add Expense</h1>
+            <p class="page-subtitle">Log a new transaction</p>
+          </div>
+        </div>
+        <div class="card form-card">
+          <form id="expense-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <div class="datepicker-wrapper" id="expense-datepicker">
+                  <input type="text" class="form-input datepicker-input" id="expense-date" placeholder="DD/MM/YYYY" autocomplete="off" required>
+                  <button type="button" class="datepicker-toggle" aria-label="Open calendar">📅</button>
+                  <div class="datepicker-dropdown"></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="expense-category">Category</label>
+                <select class="form-select" id="expense-category" required>
+                  <option value="">Select category</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expense-amount">Amount (₹)</label>
+              <input type="number" class="form-input" id="expense-amount" placeholder="0.00" min="0.01" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expense-note">Note (optional)</label>
+              <textarea class="form-textarea" id="expense-note" placeholder="What was this expense for?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" id="expense-submit-btn">
+              ＋ Add Expense
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ======== EXPENSE LIST VIEW ======== -->
+      <section class="view" id="view-list">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Expenses</h1>
+            <p class="page-subtitle">All transactions for the selected month</p>
+          </div>
+          <div class="month-picker">
+            <button id="list-prev-month" aria-label="Previous month">◀</button>
+            <span class="current-month" id="list-month-label"></span>
+            <button id="list-next-month" aria-label="Next month">▶</button>
+          </div>
+        </div>
+        <div id="expense-table-wrapper"></div>
+      </section>
+
+      <!-- ======== MONTHLY REPORT VIEW ======== -->
+      <section class="view" id="view-report">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Monthly Report</h1>
+            <p class="page-subtitle">Detailed spending analysis & export</p>
+          </div>
+          <div style="display:flex; gap: var(--space-md); align-items:center;">
+            <div class="month-picker">
+              <button id="report-prev-month" aria-label="Previous month">◀</button>
+              <span class="current-month" id="report-month-label"></span>
+              <button id="report-next-month" aria-label="Next month">▶</button>
+            </div>
+            <button class="btn btn-secondary" id="export-csv-btn">⬡ Export Excel</button>
+          </div>
+        </div>
+
+        <div class="summary-grid" id="report-summary-cards"></div>
+
+        <div class="card" style="margin-bottom: var(--space-lg);">
+          <h2 class="chart-title" style="margin-bottom: var(--space-md);">Category Breakdown</h2>
+          <div id="report-category-table"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="chart-title" style="margin-bottom: var(--space-md);">All Transactions</h2>
+          <div id="report-transactions-table"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ── Edit Modal ── -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Expense</h3>
+        <button class="modal-close" id="modal-close-btn">✕</button>
+      </div>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <div class="datepicker-wrapper" id="edit-datepicker">
+              <input type="text" class="form-input datepicker-input" id="edit-date" placeholder="DD/MM/YYYY" autocomplete="off" required>
+              <button type="button" class="datepicker-toggle" aria-label="Open calendar">📅</button>
+              <div class="datepicker-dropdown"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-category">Category</label>
+            <select class="form-select" id="edit-category" required></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-amount">Amount (₹)</label>
+          <input type="number" class="form-input" id="edit-amount" min="0.01" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-note">Note</label>
+          <textarea class="form-textarea" id="edit-note"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/datepicker.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
